@@ -26,6 +26,7 @@ def get_dict_of_state(state):
     hospitalized_changes = [] # change in number of people hospitalized
     death = [] # number of people dead from virus
     death_changes = [] # change in deaths
+    recovered = [] # number of people recovered
 
     # getting the data for each category and putting them in their own lists
     for obj in data:
@@ -39,6 +40,7 @@ def get_dict_of_state(state):
         hospitalized_changes.append(obj["hospitalizedIncrease"])
         death.append(obj["death"])
         death_changes.append(obj["deathIncrease"])
+        recovered.append(obj["recovered"])
     
     # putting all the data into one dictionary for each state
     dict_for_state = {
@@ -51,10 +53,10 @@ def get_dict_of_state(state):
         "hospitalized": hospitalized,
         "hospital changes": hospitalized_changes,
         "death cases": death,
-        "death changes": death_changes
+        "death changes": death_changes, 
+        "recovered": recovered,
     }
 
     return dict_for_state
 
-print(get_dict_of_state("WA"))
     
