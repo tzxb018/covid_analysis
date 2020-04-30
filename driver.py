@@ -3,7 +3,7 @@ from sir import SIR
 from datetime import timedelta
 import numpy as np
 import matplotlib.pyplot as plt
-
+from plot import *
 
 # this the driver class where all the code will be run from
 # getting the inital data from the github repo
@@ -46,22 +46,4 @@ actual_data = []
 for i in df.index:
     actual_data.append(df["Confirmed"][i])
 
-t_a = np.linspace(0, len(df), len(df))
-t = np.linspace(0, days, days)
-
-# Plot the data on three separate curves for S(t), I(t) and R(t)
-fig = plt.figure(facecolor="w")
-ax = fig.add_subplot(111, axisbelow=True)
-ax.plot(t, I1, "r", alpha=0.5, lw=2, label="Infected")
-ax.plot(t, I2, "g", alpha=0.5, lw=2, label="Infected")
-ax.plot(t_a, actual_data )
-ax.set_xlabel("Time /days")
-ax.set_ylabel("Number of Cases")
-ax.yaxis.set_tick_params(length=0)
-ax.xaxis.set_tick_params(length=0)
-ax.grid(b=True, which="major", c="w", lw=2, ls="-")
-legend = ax.legend()
-legend.get_frame().set_alpha(0.5)
-for spine in ("top", "right", "bottom", "left"):
-    ax.spines[spine].set_visible(False)
-plt.show()
+plotCases(I2, actual_data, days)

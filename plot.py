@@ -28,5 +28,26 @@ def plotAndCompare(t, S1, I1, R1, S2, I2, R2):
         ax.spines[spine].set_visible(False)
     plt.show()
 
+
 # plotting the SIR models, the polynomail approximation, and the actual data
-def plotCases(t, I1, I2, )
+# SIR = data from SIR method
+# actual_data = actual data taken for region
+# number of days you want to plot in the future
+def plotCases(SIR, actual_data, days):
+    t_a = np.linspace(0, len(actual_data), len(actual_data))
+    t = np.linspace(0, days, days)
+    # Plot the data on three separate curves for S(t), I(t) and R(t)
+    fig = plt.figure(facecolor="w")
+    ax = fig.add_subplot(111, axisbelow=True)
+    ax.plot(t, SIR, "r", alpha=0.5, lw=2, label="SIR Predicted")
+    ax.plot(t_a, actual_data, alpha=0.5, lw=2, label="actual data")
+    ax.set_xlabel("Time /days")
+    ax.set_ylabel("Number of Cases")
+    ax.yaxis.set_tick_params(length=0)
+    ax.xaxis.set_tick_params(length=0)
+    ax.grid(b=True, which="major", c="w", lw=2, ls="-")
+    legend = ax.legend()
+    legend.get_frame().set_alpha(0.5)
+    for spine in ("top", "right", "bottom", "left"):
+        ax.spines[spine].set_visible(False)
+    plt.show()
