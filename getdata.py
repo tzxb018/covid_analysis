@@ -112,7 +112,9 @@ def filterDataByDate(df, start_date):
 
     # removing the first 14 days, as those were used to calcualte the recovered cases of the data we need to be returned
     return_df = date_df.drop(list(range(0, 14)))
-    print(return_df)
+    return_df.reset_index(inplace=True, drop=True)
+
+    return return_df
 
 
 # from an excel file, this will get the total population of a state
