@@ -2,6 +2,7 @@ import csv
 import os
 import pandas as pd
 from datetime import date, datetime, timedelta
+import numpy
 
 
 def getDataFromUS():
@@ -77,22 +78,21 @@ def filterDataForState(state_name, state_abb, data):
     state_data = data[
         (data["State"].str.contains(state_name)) | data["State"].str.contains(state_abb)
     ]
-    # state_data.to_csv("test.csv", index=True)
-    # print(state_data)
+    state_data = state_data.fillna(0)
     return state_data
 
 
 # combining all the data for the days after the given parameter
-def filterDataByDate(df, start_date):
+def filterDataByDate(df, start_date, end_date):
     # converting the start date into datetime object
-    datetime_object = datetime.strptime(start_date, "%m/%d/%Y").date()
+
     df["Date"] = pd.to_datetime(df["Date"])
     grouped = df.groupby(["Date"]).sum()
 
     # going through each row and combining the data for each date that is after the start date
     date_data = []
     for name, group in df.groupby("Date"):
-        if name >= datetime_object - timedelta(days=14):
+        if name >= start_date - timedelta(days=14) and name <= end_date:
             date_info = [
                 name,
                 group["Confirmed"].sum(),

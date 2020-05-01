@@ -28,5 +28,39 @@ def plotAndCompare(t, S1, I1, R1, S2, I2, R2):
         ax.spines[spine].set_visible(False)
     plt.show()
 
+
 # plotting the SIR models, the polynomail approximation, and the actual data
-def plotCases(t, I1, I2, )
+# SIR = data from SIR method
+# actual_data = actual data taken for region
+# number of days you want to plot in the future
+def plotCases(
+    SIR_pre, SIR_post, actual_pre, actual_post, state_name, days_pre, days_post
+):
+    t = list(range(days_post + days_pre))
+    for i in range(days_post):
+        SIR_pre.append(np.NaN)
+        actual_pre.append(np.NaN)
+    for i in range(days_pre):
+        SIR_post.insert(0, np.NaN)
+        actual_post.insert(0, np.NaN)
+
+    # Plot the data on three separate curves for S(t), I(t) and R(t)
+    fig = plt.figure(facecolor="w")
+    ax = fig.add_subplot(111, axisbelow=True)
+    ax.plot(t, SIR_pre, "r", alpha=0.5, lw=2, label="SIR Predicted Before Order")
+    ax.plot(t, actual_pre, alpha=0.5, lw=2, label="Actual Data Before Order")
+
+    ax.plot(t, SIR_post, "g", alpha=0.5, lw=2, label="SIR Predicted After")
+    ax.plot(t, actual_post, alpha=0.5, lw=2, label="Actual Data After")
+    ax.set_xlabel("Time /days")
+    ax.set_ylabel("Number of Cases")
+    ax.set_title(state_name)
+    ax.yaxis.set_tick_params(length=0)
+    ax.xaxis.set_tick_params(length=0)
+    ax.grid(b=True, which="major", c="w", lw=2, ls="-")
+    legend = ax.legend()
+    legend.get_frame().set_alpha(0.5)
+    for spine in ("top", "right", "bottom", "left"):
+        ax.spines[spine].set_visible(False)
+    # plt.savefig(str(state_name) + str("1.png"))
+    plt.show()

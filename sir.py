@@ -38,3 +38,20 @@ def SIR(
     return S, I, R
 
 
+# finding the average difference between the SIR data and the actual data to approximate the accuracy of the reproduction rate
+def square_difference(actual, SIR_data):
+    square_diff = 0
+
+    for i in range(0, len(actual)):
+        square_diff = square_diff + (actual[i] - SIR_data[i]) ** 2
+
+    return square_diff / len(actual)
+
+
+def relative_error(actual, SIR_data):
+    rel_avg = 0
+
+    for i in range(0, len(actual)):
+        rel_avg = rel_avg + (abs(actual[i] - SIR_data[i]) / actual[i])
+
+    return rel_avg / len(actual)
