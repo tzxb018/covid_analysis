@@ -33,14 +33,25 @@ def plotAndCompare(t, S1, I1, R1, S2, I2, R2):
 # SIR = data from SIR method
 # actual_data = actual data taken for region
 # number of days you want to plot in the future
-def plotCases(SIR, actual_data, days, state_name):
-    t_a = np.linspace(0, len(actual_data), len(actual_data))
-    t = np.linspace(0, days, days)
+def plotCases(
+    SIR_pre, SIR_post, actual_pre, actual_post, state_name, days_pre, days_post
+):
+    t = list(range(days_post + days_pre))
+    for i in range(days_post):
+        SIR_pre.append(np.NaN)
+        actual_pre.append(np.NaN)
+    for i in range(days_pre):
+        SIR_post.insert(0, np.NaN)
+        actual_post.insert(0, np.NaN)
+
     # Plot the data on three separate curves for S(t), I(t) and R(t)
     fig = plt.figure(facecolor="w")
     ax = fig.add_subplot(111, axisbelow=True)
-    ax.plot(t, SIR, "r", alpha=0.5, lw=2, label="SIR Predicted")
-    ax.plot(t_a, actual_data, alpha=0.5, lw=2, label="actual data")
+    ax.plot(t, SIR_pre, "r", alpha=0.5, lw=2, label="SIR Predicted Before Order")
+    ax.plot(t, actual_pre, alpha=0.5, lw=2, label="Actual Data Before Order")
+
+    ax.plot(t, SIR_post, "g", alpha=0.5, lw=2, label="SIR Predicted After")
+    ax.plot(t, actual_post, alpha=0.5, lw=2, label="Actual Data After")
     ax.set_xlabel("Time /days")
     ax.set_ylabel("Number of Cases")
     ax.set_title(state_name)

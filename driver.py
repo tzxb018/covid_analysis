@@ -66,10 +66,10 @@ state_map = [
 for i in range(0, len(state_map)):
 
     # getting the names of the state we are looking at
-    state_abb = state_map[i][0]
-    state_name = state_map[i][1]
-    # state_abb = "WA"
-    # state_name = "Washington"
+    # state_abb = state_map[i][0]
+    # state_name = state_map[i][1]
+    state_abb = "WA"
+    state_name = "Washington"
 
     # obtaining the data specific for the state
     state_data = filterDataForState(state_name, state_abb, covid_data)
@@ -105,8 +105,9 @@ for i in range(0, len(state_map)):
         inital_recovered_pre = df_pre_order["Recovered"][0]
         recovery_days = 14
         days_pre = len(df_pre_order.index)
+        days_post = 0
 
-        # function is defined as finding the SIR approximation and then finding the square diff from the actual vs the approximated
+        # function is defined as finding the SIR approximation and then finding the square diff from the actual vs the approximated 
         def f_pre(r0):
             S, I, R = SIR(
                 total_pop, initial_cases_pre, inital_recovered_pre, 14, r0, days_pre
@@ -217,3 +218,6 @@ for i in range(0, len(state_map)):
         arr_r0.append(round(post_r0, 3))
 
     print(state_name, arr_r0)
+    plotCases(
+        arr_sir_pre, arr_sir_post, arr_pre, arr_post, state_name, days_pre, days_post
+    )
