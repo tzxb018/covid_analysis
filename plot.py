@@ -2,6 +2,7 @@ import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 from matplotlib.dates import YEARLY, DateFormatter, rrulewrapper, RRuleLocator, drange
+import math
 
 # plots the two estimated curves
 def plotAndCompare(t, S1, I1, R1, S2, I2, R2):
@@ -109,3 +110,37 @@ def plotAfter(SIR_post, SIR_if, actual_post, state_name):
     for spine in ("top", "right", "bottom", "left"):
         ax.spines[spine].set_visible(False)
     plt.savefig("graphs\\" + str(state_name) + str("_post.png"))
+
+
+def plotPoly(cases, coefficients, state_name, exp):
+    t = list(range(len(cases)))
+    y = []
+
+    if exp:
+        for x in t:
+            approx = coefficients[1] * math.e ** (coefficients[0] * x)
+            y.append(approx)
+    else:
+        for x in t:
+            approx = 0
+            for i in range(0, len(coefficients)):
+                approx = approx + coefficients[i] * x ** i
+            y.append(approx)
+
+    fig = plt.figure(facecolor="w")
+    ax = fig.add_subplot(111, axisbelow=True)
+    ax.plot(t, y)
+    ax.plot(t, cases, lw=2, label="Actual Data")
+    ax.set_xlabel("Time /days")
+    ax.set_ylabel("Number of Cases")
+    ax.set_ylim()
+    ax.set_title(state_name)
+    ax.yaxis.set_tick_params(length=0)
+    ax.xaxis.set_tick_params(length=0)
+    ax.grid(b=True, which="major", c="w", lw=2, ls="-")
+    legend = ax.legend()
+    legend.get_frame().set_alpha(0.5)
+    for spine in ("top", "right", "bottom", "left"):
+        ax.spines[spine].set_visible(False)
+    plt.show()
+    # plt.savefig("graphs\\" + str(state_name) + str("_polyfit.png"))

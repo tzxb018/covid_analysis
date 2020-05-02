@@ -21,8 +21,10 @@ data1 = [[1, 1.36], [1.25, 1.91], [1.5, 2.19], [2, 3.74], [2.5, 4.63]]
 
 test_data = [[0, 1], [0.25, 1.2840], [0.5, 1.6487], [0.75, 2.1170], [1, 2.7183]]
 
+exp_data = [[1, 5.1], [1.25, 5.79], [1.5, 6.53], [1.75, 7.45], [2, 8.46]]
+
 # given data points, this will return what the point should be at with the calcualted linear approximation with the data
-def lin_approx(data, x_0, table):
+def lin_approx(data, table):
     x_i_sum, y_i_sum, x_i_squared_sum, x_i_y_i_sum, m = 0, 0, 0, 0, 0
 
     # finding the summmations needed to solve for the coefficients
@@ -54,7 +56,6 @@ def lin_approx(data, x_0, table):
                         round(x_i_y_i_sum, 4),
                         round(a_1, 4),
                         round(a_0, 4),
-                        round(a_1 * x_0 + a_0, 4),
                     ]
                 ],
                 floatfmt=".4f",
@@ -65,17 +66,43 @@ def lin_approx(data, x_0, table):
                     "Sum of xy",
                     "a1",
                     "a0",
-                    "f(" + str(x_0) + ")",
                 ],
                 tablefmt="pretty",
             )
         )
 
     # finding the approximation given the points
-    return a_1 * x_0 + a_0
+    return a_1, a_0
 
 
-def poly_approx(data, power, x_0):
+def exp_approx(data):
+    x_i_sum, y_i_sum, x_i_squared_sum, x_i_y_i_sum, m = 0, 0, 0, 0, 0
+
+    # finding the summmations needed to solve for the coefficients
+    for point in data:
+        m = m + 1
+        x = point[0]
+        y = point[1]
+
+        x_i_sum = x + x_i_sum
+        y_i_sum = y_i_sum + math.log(y, math.e)
+        x_i_squared_sum = x_i_squared_sum + x ** 2
+        x_i_y_i_sum = x_i_y_i_sum + (x * math.log(y, math.e))
+
+    # solving for the coefficients
+    a_0 = (x_i_squared_sum * y_i_sum - x_i_y_i_sum * x_i_sum) / (
+        m * x_i_squared_sum - x_i_sum ** 2
+    )
+    a_1 = (m * x_i_y_i_sum - x_i_sum * y_i_sum) / (m * x_i_squared_sum - x_i_sum ** 2)
+
+    # b = e^a_0
+    b = math.e ** a_0
+
+    # finding the approximation given the points
+    return a_1, b
+
+
+def poly_approx(data, power):
     # depending on the power, find the appropriate number of summations
     x_sum = []  # table for holding all the x-summations
     xy_sum = []  # table for holding all the xy-summation
@@ -110,23 +137,25 @@ def poly_approx(data, power, x_0):
     # solving for the system of equations
     a = numpy.array(A)
     b = numpy.array(xy_sum)
-    print("A Coefficient Matrix\n" + str(a))
-    print("B Matrix\n " + str(b))
+    # print("A Coefficient Matrix\n" + str(a))
+    # print("B Matrix\n " + str(b))
     x = numpy.linalg.solve(a, b)
-    print("Coefficients: " + str(x))
-    # finding the approximation at the point x_0
-    approx = 0
-    for i in range(0, power + 1):
-        approx = approx + x[i] * x_0 ** i
+    # print("Coefficients: " + str(x))
 
-    return approx
+    return x
+    # # finding the approximation at the point x_0
+    # approx = 0
+    # for i in range(0, power + 1):
+    #     approx = approx + x[i] * x_0 ** i
+
+    # return approx
 
 
 def error(actual, approximation):
     return str(round(abs(actual - approximation) / actual * 100, 4)) + "%"
 
-lin_approx(data1, 2.25,True)
-'''
+# lin_approx(data1, 2.25,True)
+"""
 approx = []
 actual = 1.921875
 linear = lin_approx(data, 0.75, False)
@@ -147,5 +176,4 @@ print(
         headers=["Least Squares Power", "Estimated Value", "Relative Error"],
         tablefmt="pretty",
     )
-)'''
-
+)"""

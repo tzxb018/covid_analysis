@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from plot import *
 import time
 import csv
+from least_square_approx import *
 
 # this the driver class where all the code will be run from
 # getting the inital data from the github repo
@@ -64,8 +65,8 @@ state_map = [
     ["WY", "Wyoming"],
 ]
 
-for i in range(0,1):
 
+def epidiomology(state_abb, state_name):
     # getting the names of the state we are looking at
     # state_name = state_map[i][1]
     # state_abb = state_map[i][0]
@@ -94,7 +95,7 @@ for i in range(0,1):
     stay_at_home_date = getDateOfStartOfOrder(state_name)
     if stay_at_home_date == None:
 
-        continue
+        return  # this can be commented out if want to find out info about states without saho
 
         # getting data for the range of time given
         df_pre_order = filterDataByDate(state_data, data_start_date, data_end_date)
@@ -148,7 +149,7 @@ for i in range(0,1):
             state_data, data_start_date, stay_at_home_date_obj
         )
         df_post_order = filterDataByDate(
-            state_data, stay_at_home_date_obj, data_end_date
+            state_data, stay_at_home_date_obj + timedelta(days=1), data_end_date
         )
 
         # filling in arrays with actual data
@@ -241,3 +242,67 @@ for i in range(0,1):
     # )
     plotBefore(arr_sir_pre, arr_pre, state_name)
     plotAfter(arr_sir_post, arr_sir_if, arr_post, state_name)
+
+
+def least_square_approx(state_abb, state_name):
+    # obtaining the data specific for the state
+    state_data = filterDataForState(state_name, state_abb, covid_data)
+
+    # getting the start date and end date of the data set
+    data_start_date = datetime.strptime(state_data.iloc[0]["Date"], "%m-%d-%Y").date()
+    data_end_date = datetime.strptime(state_data.iloc[-1]["Date"], "%m-%d-%Y").date()
+
+    # data sets to hold relevant data
+    arr_pre = []
+    arr_post = []
+    arr_cases = []
+
+    # getting the total population for the state
+    total_pop = getPopulationForState(state_name)
+
+    # determining if there has been a stay at home order issued
+    stay_at_home_date = getDateOfStartOfOrder(state_name)
+
+    if stay_at_home_date != None:
+        # since there is a stay at home order, we need to break the data in two sets
+        # before the issued ordered, and 14 days after it was issued
+        stay_at_home_date_obj = datetime.strptime(
+            stay_at_home_date, "%m/%d/%Y"
+        ).date() + timedelta(days=14)
+
+        # getting data for pre/post order
+        df_pre_order = filterDataByDate(
+            state_data, data_start_date, stay_at_home_date_obj
+        )
+        df_post_order = filterDataByDate(
+            state_data, stay_at_home_date_obj + timedelta(days=1), data_end_date
+        )
+
+        # filling in arrays with actual data
+        counter = 0
+        c = 0
+        for i in df_pre_order.index:
+            arr_pre.append([counter, df_pre_order["Confirmed"][i]])
+            arr_cases.append([c, df_pre_order["Confirmed"][i]])
+            counter = counter + 1
+            c = c + 1
+        counter = 0
+        for i in df_post_order.index:
+            arr_post.append([counter, df_post_order["Confirmed"][i]])
+            arr_cases.append([c, df_post_order["Confirmed"][i]])
+            counter = counter + 1
+            c = c + 1
+
+        # getting the coefficients for the cubic function
+        coefficients_for_cubic = poly_approx(arr_pre, 3)
+        coefficients_for_exp = exp_approx(arr_cases)
+
+        print(coefficients_for_exp)
+        cases = []
+        for a in arr_cases:
+            cases.append(a[1])
+        plotPoly(cases, coefficients_for_exp, state_name, True)
+
+
+# epidiomology("CA", "California")
+least_square_approx("CA", "California")
