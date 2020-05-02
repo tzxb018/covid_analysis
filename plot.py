@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
-
+from matplotlib.dates import YEARLY, DateFormatter, rrulewrapper, RRuleLocator, drange
 
 # plots the two estimated curves
 def plotAndCompare(t, S1, I1, R1, S2, I2, R2):
@@ -64,3 +64,48 @@ def plotCases(
         ax.spines[spine].set_visible(False)
     # plt.savefig(str(state_name) + str("1.png"))
     plt.show()
+
+
+def plotBefore(SIR_pre, actual_pre, state_name):
+    t = list(range(len(SIR_pre)))
+    # print(len(t), len(SIR_pre), len(actual_pre))
+    # Plot the data on three separate curves for S(t), I(t) and R(t)
+    fig = plt.figure(facecolor="w")
+    ax = fig.add_subplot(111, axisbelow=True)
+    ax.plot(t, SIR_pre, "r", lw=2, label="SIR Predicted Before Order")
+    ax.plot(t, actual_pre, lw=2, label="Actual Data Before Order")
+    ax.set_xlabel("Time /days")
+    ax.set_ylabel("Number of Cases")
+    ax.set_title(state_name)
+    ax.yaxis.set_tick_params(length=0)
+    ax.xaxis.set_tick_params(length=0)
+    ax.grid(b=True, which="major", c="w", lw=2, ls="-")
+    legend = ax.legend()
+    legend.get_frame().set_alpha(0.5)
+    for spine in ("top", "right", "bottom", "left"):
+        ax.spines[spine].set_visible(False)
+
+    plt.savefig("graphs\\" + str(state_name) + str("_pre.png"))
+
+
+def plotAfter(SIR_post, SIR_if, actual_post, state_name):
+    t = list(range(len(SIR_post)))
+    # Plot the data on three separate curves for S(t), I(t) and R(t)
+    fig = plt.figure(facecolor="w")
+    ax = fig.add_subplot(111, axisbelow=True)
+    ax.plot(t, SIR_post, "g", lw=2, label="SIR Predicted After")
+    ax.plot(t, actual_post, lw=2, label="Actual Data After")
+    ax.set_xlabel("Time /days")
+    ax.set_ylabel("Number of Cases")
+    ax.set_ylim()
+    ax.plot(t, SIR_if, "r", alpha=0.5, lw=2, label="SIR Continued")
+
+    ax.set_title(state_name)
+    ax.yaxis.set_tick_params(length=0)
+    ax.xaxis.set_tick_params(length=0)
+    ax.grid(b=True, which="major", c="w", lw=2, ls="-")
+    legend = ax.legend()
+    legend.get_frame().set_alpha(0.5)
+    for spine in ("top", "right", "bottom", "left"):
+        ax.spines[spine].set_visible(False)
+    plt.savefig("graphs\\" + str(state_name) + str("_post.png"))

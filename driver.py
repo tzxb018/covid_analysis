@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from plot import *
 import time
+import csv
 
 # this the driver class where all the code will be run from
 # getting the inital data from the github repo
@@ -63,13 +64,13 @@ state_map = [
     ["WY", "Wyoming"],
 ]
 
-for i in range(0, len(state_map)):
+for i in range(0,1):
 
     # getting the names of the state we are looking at
-    # state_abb = state_map[i][0]
     # state_name = state_map[i][1]
-    state_abb = "WA"
-    state_name = "Washington"
+    # state_abb = state_map[i][0]
+    state_abb = "CA"
+    state_name = "California"
 
     # obtaining the data specific for the state
     state_data = filterDataForState(state_name, state_abb, covid_data)
@@ -83,6 +84,7 @@ for i in range(0, len(state_map)):
     arr_post = []
     arr_sir_pre = []
     arr_sir_post = []
+    arr_sir_if = []
     arr_r0 = []
 
     # getting the total population for the state
@@ -91,6 +93,8 @@ for i in range(0, len(state_map)):
     # determining if there has been a stay at home order issued
     stay_at_home_date = getDateOfStartOfOrder(state_name)
     if stay_at_home_date == None:
+
+        continue
 
         # getting data for the range of time given
         df_pre_order = filterDataByDate(state_data, data_start_date, data_end_date)
@@ -107,7 +111,7 @@ for i in range(0, len(state_map)):
         days_pre = len(df_pre_order.index)
         days_post = 0
 
-        # function is defined as finding the SIR approximation and then finding the square diff from the actual vs the approximated 
+        # function is defined as finding the SIR approximation and then finding the square diff from the actual vs the approximated
         def f_pre(r0):
             S, I, R = SIR(
                 total_pop, initial_cases_pre, inital_recovered_pre, 14, r0, days_pre
@@ -215,9 +219,25 @@ for i in range(0, len(state_map)):
         for i in I:
             arr_sir_post.append(i)
 
+        # filling in the hypothetical data (r0 from before the order)
+        Sif, Iif, Rif = SIR(
+            total_pop, initial_cases_post, inital_recovered_post, 14, pre_r0, days_post
+        )
+        for i in Iif:
+            arr_sir_if.append(i)
+
         arr_r0.append(round(post_r0, 3))
 
     print(state_name, arr_r0)
-    plotCases(
-        arr_sir_pre, arr_sir_post, arr_pre, arr_post, state_name, days_pre, days_post
-    )
+    with open("out.csv", "a") as out:
+        writer = csv.writer(
+            out, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
+
+        writer.writerow([state_abb, arr_r0[0], arr_r0[1]])
+
+    # plotCases(
+    #     arr_sir_pre, arr_sir_post, arr_pre, arr_post, state_name, days_pre, days_post
+    # )
+    plotBefore(arr_sir_pre, arr_pre, state_name)
+    plotAfter(arr_sir_post, arr_sir_if, arr_post, state_name)
