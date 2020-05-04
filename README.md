@@ -5,7 +5,7 @@
 ![Commit](https://img.shields.io/github/commit-activity/m/tzxb018/covid_analysis?style=plastic)
 
 ## Overview
-This project for my CSCE 440 class analyzes the effectivness of the stay at home orders (SAHO) in each individual state in the United States. Taking information of the number of cases from the [John Hopkins Covid-19 repo](https://github.com/CSSEGISandData/COVID-19), I seperated the data into two sections, the data before the SAHO was issued, and the other after. I then used a cubic least square polynomial and a SIR model to fit a mathematical model to the data and used these models to analyze the effectivness of SAHOs to slow down the spread of COVID-19 in each state.
+This project for my CSCE 440 class analyzes the effectivness of the stay at home orders (SAHO) in each individual state in the United States. Taking information of the number of cases from the [John Hopkins Covid-19 repo](https://github.com/CSSEGISandData/COVID-19), I seperated the data into two sections, the data before the SAHO was issued, and the other after. I then used a cubic least square polynomial and a SIR model to fit a mathematical model to the data and used these models to analyze the effectivness of SAHOs to slow down the spread of COVID-19 in each state. The report for this project is called [Determining the Effectivness of the Stay At Home Orders with Different Models](https://github.com/tzxb018/covid_analysis/blob/master/Determining_the_Effectiveness_of_the_Stay_At_Home_Orders_with_Different_Models%20(1).pdf).
 
 ## Necessary Packages
 To successfully run and use this repo, you will need to install the following packages.
