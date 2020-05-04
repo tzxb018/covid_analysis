@@ -6,12 +6,13 @@ import matplotlib.pyplot as plt
 from plot import *
 import time
 import csv
-from least_square_approx import *
+from least_square_approx import exp_approx, poly_approx
 
 # this the driver class where all the code will be run from
 # getting the inital data from the github repo
 covid_data = getDataFromUS()
 
+# state names and their abbriviations (for use as arguments)
 state_map = [
     ["AL", "Alabama"],
     ["AK", "Alaska"],
@@ -257,9 +258,6 @@ def least_square_approx(state_abb, state_name):
     arr_post = []
     arr_cases = []
 
-    # getting the total population for the state
-    total_pop = getPopulationForState(state_name)
-
     # determining if there has been a stay at home order issued
     stay_at_home_date = getDateOfStartOfOrder(state_name)
 
@@ -294,15 +292,33 @@ def least_square_approx(state_abb, state_name):
             c = c + 1
 
         # getting the coefficients for the cubic function
-        coefficients_for_cubic = poly_approx(arr_pre, 3)
-        coefficients_for_exp = exp_approx(arr_cases)
+        coeff_pre_exp = exp_approx(arr_pre)
+        coeff_pre = poly_approx(arr_pre, 3)
+        coeff_post = poly_approx(arr_post, 3)
 
-        print(coefficients_for_exp)
-        cases = []
-        for a in arr_cases:
-            cases.append(a[1])
-        plotPoly(cases, coefficients_for_exp, state_name, True)
+        cases_pre = []
+        cases_post = []
+        for a in arr_pre:
+            cases_pre.append(a[1])
+        for b in arr_post:
+            cases_post.append(b[1])
+
+        pre1, pre2 = plotPoly(cases_pre, coeff_pre, str(state_name + " Before SAHO"))
+
+        post1, post2 = plotPoly(cases_post, coeff_post, str(state_name + " After SAHO"))
+        arr_change = [state_abb, pre1, pre2, post1, post2]
+
+        # plotExp(cases_pre, coeff_pre_exp, coeff_pre, state_name)
+
+        with open("results-from-cubic-fit.csv", "a", newline="") as out:
+            writer = csv.writer(
+                out, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            )
+
+            writer.writerow(arr_change)
 
 
-# epidiomology("CA", "California")
-least_square_approx("CA", "California")
+# driver class
+for state in state_map:
+    epidiomology(state[0], state[1])
+    least_square_approx(state[0], state[1])

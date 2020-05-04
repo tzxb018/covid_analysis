@@ -3,6 +3,7 @@ from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 from matplotlib.dates import YEARLY, DateFormatter, rrulewrapper, RRuleLocator, drange
 import math
+import csv
 
 # plots the two estimated curves
 def plotAndCompare(t, S1, I1, R1, S2, I2, R2):
@@ -111,26 +112,90 @@ def plotAfter(SIR_post, SIR_if, actual_post, state_name):
         ax.spines[spine].set_visible(False)
     plt.savefig("graphs\\" + str(state_name) + str("_post.png"))
 
-
-def plotPoly(cases, coefficients, state_name, exp):
+# function that plots the graphs of cubic polynomial
+# returns the average derivative and second derivative of the polynomial
+def plotPoly(cases, coefficients, state_name):
     t = list(range(len(cases)))
+    y_change = []
     y = []
+    sum_of_change2 = 0
+    sum_of_change1 = 0
+    for x in t:
+        approx = 0
 
-    if exp:
-        for x in t:
-            approx = coefficients[1] * math.e ** (coefficients[0] * x)
-            y.append(approx)
-    else:
-        for x in t:
-            approx = 0
-            for i in range(0, len(coefficients)):
-                approx = approx + coefficients[i] * x ** i
-            y.append(approx)
+        # function for plotting the cubic fit
+        for i in range(0, len(coefficients)):
+            approx = approx + coefficients[i] * x ** i
+        y.append(approx)
+
+        approx_change = 0
+        # function for plotting the derivative
+        for i in range(1, len(coefficients)):
+            approx_change = approx_change + i * coefficients[i] * x ** (i - 1)
+        y_change.append(approx_change)
+        sum_of_change1 = sum_of_change1 + approx_change
+
+        approx2 = 0
+        # function for finding the second derivative
+        for i in range(2, len(coefficients)):
+            approx2 = approx2 + i * (i - 1) * coefficients[i] * x ** (i - 2)
+
+        sum_of_change2 = sum_of_change2 + approx2
+    sum_of_change2 = sum_of_change2 / len(cases)
+    sum_of_change1 = sum_of_change1 / len(cases)
 
     fig = plt.figure(facecolor="w")
     ax = fig.add_subplot(111, axisbelow=True)
-    ax.plot(t, y)
-    ax.plot(t, cases, lw=2, label="Actual Data")
+    ln1 = ax.plot(t, cases, "g", lw=2, label="Actual Data")
+    ln2 = ax.plot(t, y, "b", lw=2, alpha=0.5, label="Least Square Cubic Fit")
+    ax.set_xlabel("Time /days")
+    ax.set_ylabel("Number of Cases")
+    ax.set_ylim()
+    ax.set_title(state_name)
+    ax.yaxis.set_tick_params(length=0)
+    ax.xaxis.set_tick_params(length=0)
+    ax.grid(b=True, which="major", c="w", lw=2, ls="-")
+    # plt.axvline(x=seperator)
+    ax_derv = ax.twinx()
+
+    ln3 = ax_derv.plot(t, y_change, ":", label="Change in Cases")
+    ax_derv.set_ylabel("Change in Cases")
+    ax_derv.set_ylim()
+
+    lns = ln1 + ln2 + ln3
+    labs = [l.get_label() for l in lns]
+    legend = ax.legend(lns, labs, loc=0)
+    legend.get_frame().set_alpha(0.5)
+    for spine in ("top", "right", "bottom", "left"):
+        ax.spines[spine].set_visible(False)
+    fig.tight_layout()
+    # plt.show()
+    plt.savefig("graphs\\" + str(state_name) + str("_polyfit.png"))
+    plt.close()
+
+    return sum_of_change1, sum_of_change2
+
+
+def plotExp(cases, coefficients_exp, coefficients_pow, state_name):
+    t = list(range(len(cases)))
+    y = []
+    y_cub = []
+
+    for x in t:
+        approx = coefficients_exp[1] * math.e ** (coefficients_exp[0] * x)
+        y.append(approx)
+
+        approx = 0
+        # function for plotting the cubic fit
+        for i in range(0, len(coefficients_pow)):
+            approx = approx + coefficients_pow[i] * x ** i
+        y_cub.append(approx)
+
+    fig = plt.figure(facecolor="w")
+    ax = fig.add_subplot(111, axisbelow=True)
+    ax.plot(t, y, "r:", lw=2, label="Exponential Fit")
+    ax.plot(t, cases, "g", lw=2, label="Actual Data")
+    ax.plot(t, y_cub, "b:", lw=2, label="Cubic Fit")
     ax.set_xlabel("Time /days")
     ax.set_ylabel("Number of Cases")
     ax.set_ylim()
@@ -143,4 +208,3 @@ def plotPoly(cases, coefficients, state_name, exp):
     for spine in ("top", "right", "bottom", "left"):
         ax.spines[spine].set_visible(False)
     plt.show()
-    # plt.savefig("graphs\\" + str(state_name) + str("_polyfit.png"))
